@@ -1,3 +1,3 @@
 # BBS
-Zach was here!!!
-asdasd
+Zach was here!
+Adam was here!
