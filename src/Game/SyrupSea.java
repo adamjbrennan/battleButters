@@ -1,6 +1,7 @@
 package Game;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -33,9 +34,11 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 	 * elements of the array are set to false.
 	 */
 
-	private PlayerGrid pg;
-	private OpponentGrid og;
+	private Grid playerGrid;
+	private Grid opponentGrid;
 	private BufferedImage gameBoard;
+	
+	boolean isTurn; 
 	
 	public SyrupSea(int width, int height, Color color) throws IOException  
 	{
@@ -50,6 +53,8 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		this.setFocusTraversalKeysEnabled(false);
 		
 		gameBoard = ImageIO.read(new File("res/gameTemplate.png"));
+		opponentGrid = new Grid(0, 1, new Color(0, 255, 0, 0));
+		playerGrid = new Grid(0, 347, new Color(255, 0, 0, 0));
 		
 		repaint();
 	}
@@ -60,6 +65,8 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		Graphics2D g2 = (Graphics2D)g;
 		
 		g2.drawImage(gameBoard, 0, 0, null);
+		opponentGrid.draw(g2);
+		playerGrid.draw(g2);
 		
 	}
 	
@@ -72,8 +79,9 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 	}
 
 	@Override
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+	public void mouseEntered(MouseEvent arg0)
+	{
+		
 		
 	}
 
@@ -97,14 +105,22 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 
 	@Override
 	public void mouseDragged(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+		
+	
 		
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+	public void mouseMoved(MouseEvent arg0) 
+	{
+		boolean opponent = opponentGrid.find(arg0);
+		boolean player = playerGrid.find(arg0);
+		if(opponent || player)
+			this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+		else
+			this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 		
+		repaint();
 	}
 
 	@Override
