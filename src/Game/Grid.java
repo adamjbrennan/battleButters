@@ -8,7 +8,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JPanel;
 
-public class Grid 
+public class Grid
 {
 	private Square[][] grid;
 	private Color defaultColor;
@@ -30,7 +30,7 @@ public class Grid
 		double y = topLeftY;
 		for(int i = 0; i < grid.length; i++)
 		{
-			for(int j = 0; j < grid[0].length; j++)
+			for(int j = 0; j < grid[i].length; j++)
 			{
 				grid[i][j] = new Square(x, y, 34, defaultColor);
 				x += 34;
@@ -40,25 +40,25 @@ public class Grid
 		}
 	}
 	
-	public void draw(Graphics2D g) 
+	public void draw(Graphics2D g)
 	{
 		for(int i = 0; i < grid.length; i++)
 		{
-			for(int j = 0; j < grid[0].length; j++)
+			for(int j = 0; j < grid[i].length; j++)
 			{
 				grid[i][j].draw(g);
 			}
 		}
 	}
 	
-	public boolean find(MouseEvent me)
+	public boolean find(Point p)
 	{
 		boolean found = false;
 		for(int i = 0; i < grid.length; i++)
 		{
 			for(int j = 0; j < grid[i].length; j++)
 			{
-				if(grid[i][j].contains(me.getPoint()))
+				if(grid[i][j].contains(p))
 				{
 					grid[i][j].setColor(defaultColor, 50);
 					found = true;
