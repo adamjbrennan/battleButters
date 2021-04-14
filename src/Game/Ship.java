@@ -1,31 +1,42 @@
 package Game;
 
+import java.awt.image.BufferedImage;
+
+import javax.imageio.stream.FileImageOutputStream;
+
 public class Ship
 {
-	private ShipFragment[][] shipFrags; 
+	BufferedImage shipImage;
 	private int startingX;
 	private int startingY;
-	boolean isPlayerShip;
+	private boolean isLocked = true; 
 	
-	public Ship(int rows, int columns, String shipImage, int x, int y)
+	public Ship(int rows, int columns, BufferedImage si, int x, int y)
 	{
 		this.startingX = x;
 		this.startingY = y;
-		this.shipFrags = new ShipFragment[rows][columns];
-		fillShip();
+		this.shipImage = si;
+//		this.shipFrags = new ShipFragment[rows][columns];
+//		fillShip();
 	}
 	
-	public void fillShip()
+	private void toggleLock()
 	{
-		int x = startingX;
-		int y = startingY; 
-		
-		for(int i = 0; i < shipFrags.length; i++)
-		{
-			for(int j = 0; j < shipFrags[i].length; j++)
-			{
-				
-			}
-		}
+		isLocked = !isLocked;
 	}
+	
+	
+//	public void fillShip()
+//	{
+//		int x = startingX;
+//		int y = startingY; 
+//		
+//		for(int i = 0; i < shipFrags.length; i++)
+//		{
+//			for(int j = 0; j < shipFrags[i].length; j++)
+//			{
+//				
+//			}
+//		}
+//	}
 }

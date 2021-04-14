@@ -17,22 +17,16 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.OverlayLayout;
 
-public class BattleButters extends JFrame
+public class BattleButters extends JFrame 
 {
-	private final int PROGRAM_WIDTH = 425; 
-	private final int PROGRAM_HEIGHT = 835; 
-	private SyrupSea ss;
-	private SyrupSea3DModel ss3d;
+	private static final int PROGRAM_WIDTH = 425; 
+	private static final int PROGRAM_HEIGHT = 835; 
 
 	public static void main(String[] args) throws IOException 
 	{
 		new BattleButters().start();
 	}
 	
-	public BattleButters()
-	{
-		ss = new SyrupSea(PROGRAM_WIDTH, PROGRAM_HEIGHT, Color.WHITE);
-	}
 	public void start()
 	{
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -48,7 +42,18 @@ public class BattleButters extends JFrame
 			System.err.println("Could not read in icon file! Check file path!");
 			System.exit(-1);
 		}
-		this.add(ss);
+		this.add(SyrupSea.getInstance());
 		this.setVisible(true);
 	}
+	
+	public static int getGameWidth()
+	{
+		return PROGRAM_WIDTH;
+	}
+	
+	public static int getGameHeight()
+	{
+		return PROGRAM_HEIGHT;
+	}
 }
+

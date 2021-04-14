@@ -2,6 +2,7 @@ package Game;
 
 import java.awt.Color;
 
+
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -9,26 +10,34 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
-import javax.sound.sampled.Line;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
-public class SyrupSea extends JPanel implements KeyListener, MouseInputListener{
+public class SyrupSea extends JPanel implements KeyListener, MouseInputListener {
+	
+	private static SyrupSea single_sea = null;
 
 	private Grid playerGrid;
 	private Grid opponentGrid;
-	private BufferedImage gameBoard;
-	private ArrayList<Square> firedShots = new ArrayList<Square>();
-	boolean isTurn; 
 	
-	public SyrupSea(int width, int height, Color color)
+	private BufferedImage gameBoard;
+	
+	private ArrayList<Ship> playerShips = new ArrayList<Ship>();
+	private ArrayList<Ship> opponentShips = new ArrayList<Ship>();
+	
+	private Shot outgoingShot;
+	
+	int frames = 0;
+	int seconds = 0;
+	
+	
+	
+	private SyrupSea(int width, int height, Color color)
 	{
 		this.setPreferredSize(new Dimension(width, height));
 		this.setBackground(color); 
@@ -52,11 +61,22 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener{
 
 		opponentGrid = new Grid(0, 1, new Color(0, 255, 0, 0));
 		playerGrid = new Grid(0, 347, new Color(255, 0, 0, 0));
+		repaint();
+	}
+	
+	public static SyrupSea getInstance()
+	{
+		if(single_sea == null)
+			single_sea = new SyrupSea(BattleButters.getGameWidth(), BattleButters.getGameHeight(), Color.WHITE);
+		
+		return single_sea;
 	}
 	 
 	@Override 
 	protected void paintComponent(Graphics g) 
 	{
+		System.err.println("Graphics Rendered!");
+		
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;
 		
@@ -64,50 +84,45 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener{
 		opponentGrid.draw(g2);
 		playerGrid.draw(g2);
 		
-		g2.setColor(Color.BLACK);
-		for(Rectangle2D.Double a: firedShots)
+		if(outgoingShot != null)
 		{
-			g2.draw(a);
-			g2.setColor(Color.GREEN);
-			g2.fill(a);
+			if(!outgoingShot.getBeingFired())
+				outgoingShot.runFireAnimation(g2);
+
+			System.out.println("Drew the shot!");
+			outgoingShot.draw(g2);
 		}
 		
-		try {
-			Thread.sleep(16);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		repaint();
+//		long start = System.currentTimeMillis();
+//		long delta = 0;
+//		long frameTime = 1000/60;
+//		
+//		while(delta < frameTime) 
+//		{
+//			delta = System.currentTimeMillis() - start;
+//		}
+//		
+//		frames++;
+//		
+//		if(frames%60==0) 
+//		{
+//			seconds++;
+//		}
+//		
+//		repaint();
 	}
 	
 
 	
 	@Override
-	public void mouseClicked(MouseEvent arg0) {
-		boolean clickInOpponentGrid = opponentGrid.find(arg0.getPoint());
+	public void mouseClicked(MouseEvent me) {
+		boolean clickInOpponentGrid = opponentGrid.find(me.getPoint());
 		if(clickInOpponentGrid)
 		{
-			System.out.println("Syrup sea clicked!");
-			Color fillColor = Color.GREEN;
-			Square firedShot = new Square(835, 425, 10, fillColor);
-			firedShots.add(firedShot);
-			int targX = arg0.getX() - 5;
-			int targY = arg0.getY() - 5;
-			double differenceX = targX - firedShot.x;
-			double differenceY = targY - firedShot.y; 
-			
-			while((int)firedShot.x != targX && (int)firedShot.y != targY)
-			{
-				firedShot.x += differenceX / 100000.0;
-				firedShot.y += differenceY / 100000.0;
-				System.out.println(firedShot.x);
-				System.out.println(firedShot.y);
-				
-			}
+			outgoingShot = new Shot(me.getPoint(), 1, 1, "res/greenBall.png");
 		}
+		repaint();
 	}
-		
 
 	@Override
 	public void mouseEntered(MouseEvent arg0)
@@ -141,24 +156,26 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener{
 		
 	}
 
-	@Override
-	public void mouseMoved(MouseEvent arg0) 
+	//FINISHED
+	public void mouseMoved(MouseEvent me) 
 	{
-		boolean opponent = opponentGrid.find(arg0.getPoint());
-		boolean player = playerGrid.find(arg0.getPoint());
+		boolean opponent = opponentGrid.find(me.getPoint());
+		boolean player = playerGrid.find(me.getPoint());
+		
 		if(opponent || player)
 			this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
 		else
 			this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+		
+		repaint();
 	}
 
 	@Override
 	public void keyPressed(KeyEvent arg0) {
+		
 		switch(arg0.getKeyCode())
 		{
-			case KeyEvent.VK_SPACE:
-				break;
-				
+			
 				
 		}
 		
@@ -166,13 +183,7 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener{
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-//		switch(arg0.getKeyCode())
-//		{
-//			case KeyEvent.VK_SPACE:
-//				this.remove(visualization);
-//				break; 
-//		}
+		
 		
 	}
 
