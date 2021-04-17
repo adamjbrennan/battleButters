@@ -1,6 +1,8 @@
 package Game;
 
 import java.awt.Color;
+
+
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -10,40 +12,35 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
-/**
- * Sets the length and width of the playing field and
- * updates the field once a shot has been taken.
- *
- * @author Collective Brain Cell Inc.
- * @version 1.0 3/12/21
- */
-
 public class SyrupSea extends JPanel implements KeyListener, MouseInputListener {
-	/*
-	 * Building a three dimensional array for each player. The Z-position of a
-	 * waffle is only changed once the waffle has completely hit. All of the
-	 * elements of the array start out as null. If there is a waffle inside a spot
-	 * in the array, elements are set to true. If a spot is shot at and is a hit, if
-	 * a spot is shot at and is a miss, or if a waffle is completely sunk, the
-	 * elements of the array are set to false.
-	 */
+	
+	private static SyrupSea single_sea = null;
 
 	private Grid playerGrid;
 	private Grid opponentGrid;
+	
 	private BufferedImage gameBoard;
 	
-	boolean isTurn; 
+	private ArrayList<Ship> playerShips;
+	private ArrayList<Ship> opponentShips;
 	
-	public SyrupSea(int width, int height, Color color) throws IOException  
+	private Shot outgoingShot;
+	
+	private boolean isTurn;
+	private boolean setup; 
+	
+	
+	
+	private SyrupSea(int width, int height, Color color)
 	{
-		setPreferredSize(new Dimension(width, height));
-		setBackground(color); 
+		this.setPreferredSize(new Dimension(width, height));
+		this.setBackground(color); 
 		
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
@@ -52,15 +49,48 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		this.setFocusable(true);
 		this.setFocusTraversalKeysEnabled(false);
 		
-		gameBoard = ImageIO.read(new File("res/gameTemplate.png"));
+		try
+		{
+			gameBoard = ImageIO.read(new File("res/gameTemplate.png"));
+		}
+		catch(Exception e)
+		{
+			System.err.println("Could not read in game template image! Check file path!");
+			System.exit(-1);
+		}
+
 		opponentGrid = new Grid(0, 1, new Color(0, 255, 0, 0));
 		playerGrid = new Grid(0, 347, new Color(255, 0, 0, 0));
 		
+		setup = false;
+		isTurn = true;
+		
+		playerShips = new ArrayList<Ship>();
+		
+		playerShips.add(new Ship(3, 3, "res/waffle3X3.jpg", 7, 693));
+		playerShips.add(new Ship(2, 2, "res/waffle2X2.png", 129, 711));
+		playerShips.add(new Ship(2, 2, "res/waffle2X2.png", 211, 711));
+		playerShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 690));
+		playerShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 727));
+		playerShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 764));
+		
+		
 		repaint();
 	}
-
-	protected void paintComponent(Graphics g)
+	
+	public static SyrupSea getInstance()
 	{
+		if(single_sea == null)
+			single_sea = new SyrupSea(BattleButters.getGameWidth(), BattleButters.getGameHeight(), Color.WHITE);
+		
+		return single_sea;
+	}
+	 
+	@Override 
+	protected void paintComponent(Graphics g) 
+	{
+		System.err.println("Graphics Rendered!");
+		
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;
 		
@@ -68,14 +98,68 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		opponentGrid.draw(g2);
 		playerGrid.draw(g2);
 		
+		if(outgoingShot != null)
+		{
+			if(!outgoingShot.getBeingFired())
+				outgoingShot.runFireAnimation(g2);
+
+			System.out.println("Drew the shot!");
+			outgoingShot.draw(g2);
+		}
+		
+		for(Ship s: playerShips)
+		{
+			System.out.println("Drew ship!");
+			s.draw(g2);
+		}
 	}
 	
 
 	
 	@Override
-	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+	public void mouseClicked(MouseEvent me) {
 		
+		boolean clickInOpponentGrid = opponentGrid.find(me.getPoint());
+		boolean clickInPlayerGrid = playerGrid.find(me.getPoint());
+		
+		if(!setup)
+		{
+			for(Ship s: playerShips)
+			{
+				if(s.getRect().contains(me.getPoint()))
+				{
+					s.setToggle(true);
+					Ship.setSelectedShip(s);
+					s.setColor(Color.RED);
+					break;
+				}
+				
+				else
+				{
+					if(!clickInPlayerGrid)
+					{
+						s.setToggle(false);
+						Ship.setSelectedShip(null);
+						s.setColor(Color.BLACK);
+					}
+					else if(Ship.getSelectedShip() != null && clickInPlayerGrid)
+					{
+						int[] indices = playerGrid.findIndices(me.getPoint());
+						
+						Ship.getSelectedShip().moveShip(playerGrid.getSquareArray()[indices[0]][indices[1]].x, playerGrid.getSquareArray()[indices[0]][indices[1]].y);
+						
+						Ship.setSelectedShip(null);
+					}
+				}
+			}
+		}
+		
+		if(clickInOpponentGrid && isTurn)
+		{
+			outgoingShot = new Shot(me.getPoint(), 1, 1, "res/greenBall.png");
+		}
+		
+		repaint();
 	}
 
 	@Override
@@ -110,34 +194,52 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		
 	}
 
-	@Override
-	public void mouseMoved(MouseEvent arg0) 
+	//FINISHED
+	public void mouseMoved(MouseEvent me) 
 	{
-		boolean opponent = opponentGrid.find(arg0);
-		boolean player = playerGrid.find(arg0);
+		//Avoid short circuit evaluation...
+		boolean opponent = opponentGrid.find(me.getPoint());
+		boolean player = playerGrid.find(me.getPoint());
+		
 		if(opponent || player)
 			this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
 		else
 			this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+		
+		if(isTurn && Ship.getSelectedShip() == null)
+		{
+			playerGrid.shotHover(me.getPoint());
+			opponentGrid.shotHover(me.getPoint());
+		}
+		if(Ship.getSelectedShip() != null)
+		{
+			System.out.println("Ship selected and hovering!");
+			playerGrid.placeHover(me.getPoint(), Ship.getSelectedShip());
+		}
 		
 		repaint();
 	}
 
 	@Override
 	public void keyPressed(KeyEvent arg0) {
-		// TODO Auto-generated method stub
+		
+		switch(arg0.getKeyCode())
+		{
+			
+				
+		}
 		
 	}
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
