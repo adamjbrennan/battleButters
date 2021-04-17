@@ -14,7 +14,7 @@ public class Shot
 	private Point sp;
 	//TODO - Implement different effected widths for different shots
 	private int effectedWidth;
-	//TODO - Implement different effected heights for differe
+	//TODO - Implement different effected heights for different shots 
 	private int effectedHeight;
 	private double currentX = 425.0;
 	private double currentY = 835.0;

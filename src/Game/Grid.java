@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 public class Grid
 {
 	private Square[][] grid;
-	private Color defaultColor;
+	private Color fireHoverColor;
 	private double topLeftX;
 	private double topLeftY;
 	
@@ -19,7 +19,7 @@ public class Grid
 	{
 		this.topLeftX = x;
 		this.topLeftY = y;
-		this.defaultColor = hoverColor;
+		this.fireHoverColor = hoverColor;
 		grid = new Square[10][10];
 		placeGrid();
 	}
@@ -32,11 +32,11 @@ public class Grid
 		{
 			for(int j = 0; j < grid[i].length; j++)
 			{
-				grid[i][j] = new Square(x, y, 34, defaultColor);
-				x += 34;
+				grid[i][j] = new Square(x, y, new Color(0, 0, 0, 0));
+				x += Square.getSquareDimensions();
 			}
 			x = topLeftX;
-			y += 34;
+			y += Square.getSquareDimensions();
 		}
 	}
 	
@@ -51,24 +51,82 @@ public class Grid
 		}
 	}
 	
-	public boolean find(Point p)
+	public void shotHover(Point p)
 	{
-		boolean found = false;
 		for(int i = 0; i < grid.length; i++)
 		{
 			for(int j = 0; j < grid[i].length; j++)
 			{
 				if(grid[i][j].contains(p))
 				{
-					grid[i][j].setColor(defaultColor, 50);
-					found = true;
+					grid[i][j].setColor(this.fireHoverColor, 50);
 				}
 				else
+					grid[i][j].setColor(this.fireHoverColor, 0);
+			}
+		}
+	}
+	
+	public boolean find(Point p)
+	{
+		for(int i = 0; i < grid.length; i++)
+		{
+			for(int j = 0; j < grid[i].length; j++)
+			{
+				if(grid[i][j].contains(p))
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public int[] findIndices(Point p)
+	{
+		int[] indices = {-1, -1};
+		for(int i = 0; i < grid.length; i++)
+		{
+			for(int j = 0; j < grid[i].length; j++)
+			{
+				if(grid[i][j].contains(p))
 				{
-					grid[i][j].setColor(defaultColor, 0);
+					indices[0] = i;
+					indices[1] = j;
 				}
 			}
 		}
-		return found;
+		return indices;
+	}
+	
+	public void placeHover(Point p, Ship s)
+	{
+		for(int i = 0; i < grid.length; i++)
+		{
+			for(int j = 0; j < grid[i].length; j++)
+			{
+				if(grid[i][j].contains(p))
+				{
+					for(int i2 = 0; i2 < grid.length; i2++)
+					{
+						for(int j2 = 0; j2 < grid[i2].length; j2++)
+						{
+							if(i2 >= i && i2 < i + s.getRows() && j2 >= j && j2 < j + s.getColumns())
+							{
+								System.out.println("Changed ["+i2+", "+j2+"]");
+								grid[i2][j2].setColor(Color.BLUE, 50);
+							}
+							else
+							{
+								grid[i2][j2].setColor(Color.BLACK, 0);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	public Square[][] getSquareArray()
+	{
+		return this.grid;
 	}
 }

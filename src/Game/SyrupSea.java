@@ -27,13 +27,13 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 	
 	private BufferedImage gameBoard;
 	
-	private ArrayList<Ship> playerShips = new ArrayList<Ship>();
-	private ArrayList<Ship> opponentShips = new ArrayList<Ship>();
+	private ArrayList<Ship> playerShips;
+	private ArrayList<Ship> opponentShips;
 	
 	private Shot outgoingShot;
 	
-	int frames = 0;
-	int seconds = 0;
+	private boolean isTurn;
+	private boolean setup; 
 	
 	
 	
@@ -61,6 +61,20 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 
 		opponentGrid = new Grid(0, 1, new Color(0, 255, 0, 0));
 		playerGrid = new Grid(0, 347, new Color(255, 0, 0, 0));
+		
+		setup = false;
+		isTurn = true;
+		
+		playerShips = new ArrayList<Ship>();
+		
+		playerShips.add(new Ship(3, 3, "res/waffle3X3.jpg", 7, 693));
+		playerShips.add(new Ship(2, 2, "res/waffle2X2.png", 129, 711));
+		playerShips.add(new Ship(2, 2, "res/waffle2X2.png", 211, 711));
+		playerShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 690));
+		playerShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 727));
+		playerShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 764));
+		
+		
 		repaint();
 	}
 	
@@ -93,34 +107,58 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 			outgoingShot.draw(g2);
 		}
 		
-//		long start = System.currentTimeMillis();
-//		long delta = 0;
-//		long frameTime = 1000/60;
-//		
-//		while(delta < frameTime) 
-//		{
-//			delta = System.currentTimeMillis() - start;
-//		}
-//		
-//		frames++;
-//		
-//		if(frames%60==0) 
-//		{
-//			seconds++;
-//		}
-//		
-//		repaint();
+		for(Ship s: playerShips)
+		{
+			System.out.println("Drew ship!");
+			s.draw(g2);
+		}
 	}
 	
 
 	
 	@Override
 	public void mouseClicked(MouseEvent me) {
+		
 		boolean clickInOpponentGrid = opponentGrid.find(me.getPoint());
-		if(clickInOpponentGrid)
+		boolean clickInPlayerGrid = playerGrid.find(me.getPoint());
+		
+		if(!setup)
+		{
+			for(Ship s: playerShips)
+			{
+				if(s.getRect().contains(me.getPoint()))
+				{
+					s.setToggle(true);
+					Ship.setSelectedShip(s);
+					s.setColor(Color.RED);
+					break;
+				}
+				
+				else
+				{
+					if(!clickInPlayerGrid)
+					{
+						s.setToggle(false);
+						Ship.setSelectedShip(null);
+						s.setColor(Color.BLACK);
+					}
+					else if(Ship.getSelectedShip() != null && clickInPlayerGrid)
+					{
+						int[] indices = playerGrid.findIndices(me.getPoint());
+						
+						Ship.getSelectedShip().moveShip(playerGrid.getSquareArray()[indices[0]][indices[1]].x, playerGrid.getSquareArray()[indices[0]][indices[1]].y);
+						
+						Ship.setSelectedShip(null);
+					}
+				}
+			}
+		}
+		
+		if(clickInOpponentGrid && isTurn)
 		{
 			outgoingShot = new Shot(me.getPoint(), 1, 1, "res/greenBall.png");
 		}
+		
 		repaint();
 	}
 
@@ -159,6 +197,7 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 	//FINISHED
 	public void mouseMoved(MouseEvent me) 
 	{
+		//Avoid short circuit evaluation...
 		boolean opponent = opponentGrid.find(me.getPoint());
 		boolean player = playerGrid.find(me.getPoint());
 		
@@ -166,6 +205,17 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 			this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
 		else
 			this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+		
+		if(isTurn && Ship.getSelectedShip() == null)
+		{
+			playerGrid.shotHover(me.getPoint());
+			opponentGrid.shotHover(me.getPoint());
+		}
+		if(Ship.getSelectedShip() != null)
+		{
+			System.out.println("Ship selected and hovering!");
+			playerGrid.placeHover(me.getPoint(), Ship.getSelectedShip());
+		}
 		
 		repaint();
 	}

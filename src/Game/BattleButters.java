@@ -42,6 +42,7 @@ public class BattleButters extends JFrame
 			System.err.println("Could not read in icon file! Check file path!");
 			System.exit(-1);
 		}
+		
 		this.add(SyrupSea.getInstance());
 		this.setVisible(true);
 	}
