@@ -26,6 +26,7 @@ public class Ship
 	private int columns;
 	
 	private boolean isSelected;
+	private boolean lockedInPlace;
 	private static Ship selectedShip;
 	
 	public Ship(int r, int c, String si, int x, int y) 
@@ -52,8 +53,11 @@ public class Ship
 	
 	public void draw(Graphics2D g2)
 	{
-		g2.setColor(this.outlineColor);
-		g2.draw(this.shipContainer);
+		if(!lockedInPlace)
+		{
+			g2.setColor(this.outlineColor);
+			g2.draw(this.shipContainer);
+		}
 		g2.drawImage(this.shipImage, (int)this.currentX, (int)this.currentY, null);
 	}
 	
@@ -61,9 +65,8 @@ public class Ship
 	{
 		this.currentX = x;
 		this.currentY = y;
-		shipContainer.x = this.currentX;
-		shipContainer.y = this.currentY;
-		
+		shipContainer.x = this.currentX - 1;
+		shipContainer.y = this.currentY - 1;
 	}
 	
 	public Rectangle2D.Double getRect()
@@ -76,14 +79,24 @@ public class Ship
 		this.outlineColor = c;
 	}
 	
-	public void setToggle(boolean b)
+	public void setToggleSelected(boolean b)
 	{
 		this.isSelected = b;
 	}
 	
-	public boolean getToggle()
+	public boolean getToggleSelected()
 	{
 		return this.isSelected;
+	}
+	
+	public void setToggleLockedInPlace(boolean b)
+	{
+		this.lockedInPlace = b;
+	}
+	
+	public boolean getToggleLockedInPlace()
+	{
+		return this.lockedInPlace;
 	}
 	
 	public static Ship getSelectedShip()

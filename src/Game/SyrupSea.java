@@ -63,7 +63,7 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		playerGrid = new Grid(0, 347, new Color(255, 0, 0, 0));
 		
 		setup = false;
-		isTurn = true;
+		isTurn = false;
 		
 		playerShips = new ArrayList<Ship>();
 		
@@ -74,7 +74,7 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		playerShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 727));
 		playerShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 764));
 		
-		
+
 		repaint();
 	}
 	
@@ -100,18 +100,14 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		
 		if(outgoingShot != null)
 		{
-			if(!outgoingShot.getBeingFired())
-				outgoingShot.runFireAnimation(g2);
-
-			System.out.println("Drew the shot!");
 			outgoingShot.draw(g2);
 		}
 		
 		for(Ship s: playerShips)
 		{
-			System.out.println("Drew ship!");
 			s.draw(g2);
 		}
+		System.out.println(playerShips.get(5).getRect().getHeight());
 	}
 	
 
@@ -126,29 +122,31 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		{
 			for(Ship s: playerShips)
 			{
-				if(s.getRect().contains(me.getPoint()))
+				if(s.getToggleLockedInPlace())
 				{
-					s.setToggle(true);
+					continue;
+				}
+				//Click inside of ship...
+				if(s.getRect().contains(me.getPoint()) && Ship.getSelectedShip() == null)
+				{
+					s.setToggleSelected(true);
 					Ship.setSelectedShip(s);
 					s.setColor(Color.RED);
-					break;
 				}
-				
+				//Click outside of ship...
 				else
 				{
-					if(!clickInPlayerGrid)
-					{
-						s.setToggle(false);
-						Ship.setSelectedShip(null);
-						s.setColor(Color.BLACK);
-					}
-					else if(Ship.getSelectedShip() != null && clickInPlayerGrid)
+					if(Ship.getSelectedShip() != null && clickInPlayerGrid)
 					{
 						int[] indices = playerGrid.findIndices(me.getPoint());
 						
 						Ship.getSelectedShip().moveShip(playerGrid.getSquareArray()[indices[0]][indices[1]].x, playerGrid.getSquareArray()[indices[0]][indices[1]].y);
 						
+						Ship.getSelectedShip().setToggleLockedInPlace(true);
+						
 						Ship.setSelectedShip(null);
+						s.setToggleSelected(false);
+						s.setColor(Color.BLACK);
 					}
 				}
 			}
@@ -201,17 +199,17 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		boolean opponent = opponentGrid.find(me.getPoint());
 		boolean player = playerGrid.find(me.getPoint());
 		
-		if(opponent || player)
+		if(isTurn && (opponent || player))
 			this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
 		else
 			this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 		
-		if(isTurn && Ship.getSelectedShip() == null)
+		if(isTurn)
 		{
 			playerGrid.shotHover(me.getPoint());
 			opponentGrid.shotHover(me.getPoint());
 		}
-		if(Ship.getSelectedShip() != null)
+		else if(Ship.getSelectedShip() != null)
 		{
 			System.out.println("Ship selected and hovering!");
 			playerGrid.placeHover(me.getPoint(), Ship.getSelectedShip());

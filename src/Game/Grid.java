@@ -120,7 +120,10 @@ public class Grid
 							}
 						}
 					}
+					return;
 				}
+				else
+					grid[i][j].setColor(Color.BLACK, 0);
 			}
 		}
 	}
