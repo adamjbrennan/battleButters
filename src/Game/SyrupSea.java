@@ -67,7 +67,7 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		opponentGrid = new Grid(0, 1, new Color(255, 0, 0, 255));
 		playerGrid = new Grid(0, 347, new Color(255, 255, 255, 5));
 		
-		quitButton = new Button(BattleButters.getGameWidth() - 89, BattleButters.getGameHeight() - 64, "res/quitButtonImage.png");
+		quitButton = new Button(BattleButters.getGameWidth() - 89, BattleButters.getGameHeight() - 80, 100, 100, Color.BLACK);
 		
 		
 		setup = false;
@@ -191,7 +191,7 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		
 		
 		
-		if (quitButton.getRect().contains(me.getPoint())) {
+		if (quitButton.contains(me.getPoint())) {
 			System.exit(0);
 		}
 		
