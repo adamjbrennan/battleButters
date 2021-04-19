@@ -25,6 +25,7 @@ public class Ship
 	private int rows;
 	private int columns;
 	
+	private boolean isSunk;
 	private boolean isSelected;
 	private boolean lockedInPlace;
 	private static Ship selectedShip;
@@ -49,6 +50,7 @@ public class Ship
 		this.outlineColor = Color.BLACK;
 		this.shipContainer = new Rectangle2D.Double(x - 1, y - 1, this.shipImage.getWidth() + 2, this.shipImage.getHeight() + 1);
 		this.isSelected = false;
+		this.isSunk = false;
 	}
 	
 	public void draw(Graphics2D g2)
@@ -119,6 +121,13 @@ public class Ship
 		return columns;
 	}
 	
+	public void setSunk(boolean b) {
+		this.isSunk = b;
+	}
+	
+	public boolean getSunk() {
+		return isSunk;
+	}
 //	public void fillShip()
 //	{
 //		int x = startingX;

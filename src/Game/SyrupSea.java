@@ -25,8 +25,11 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 	private Grid playerGrid;
 	private Grid opponentGrid;
 	
+	private Button quitButton;
+	
 	private BufferedImage gameBoard;
 	
+	private ArrayList<Button> hitMarkers;
 	private ArrayList<Ship> playerShips;
 	private ArrayList<Ship> opponentShips;
 	
@@ -34,6 +37,8 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 	
 	private boolean isTurn;
 	private boolean setup; 
+	
+	private int numShipPlaced;
 	
 	
 	
@@ -59,13 +64,17 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 			System.exit(-1);
 		}
 
-		opponentGrid = new Grid(0, 1, new Color(0, 255, 0, 0));
-		playerGrid = new Grid(0, 347, new Color(255, 0, 0, 0));
+		opponentGrid = new Grid(0, 1, new Color(255, 0, 0, 255));
+		playerGrid = new Grid(0, 347, new Color(255, 255, 255, 5));
+		
+		quitButton = new Button(BattleButters.getGameWidth() - 89, BattleButters.getGameHeight() - 64, "res/quitButtonImage.png");
+		
 		
 		setup = false;
 		isTurn = false;
 		
 		playerShips = new ArrayList<Ship>();
+		opponentShips = new ArrayList<Ship>();
 		
 		playerShips.add(new Ship(3, 3, "res/waffle3X3.jpg", 7, 693));
 		playerShips.add(new Ship(2, 2, "res/waffle2X2.png", 129, 711));
@@ -74,7 +83,13 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		playerShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 727));
 		playerShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 764));
 		
-
+		opponentShips.add(new Ship(3, 3, "res/waffle3X3.jpg", 7, 693 - 500));
+		opponentShips.add(new Ship(2, 2, "res/waffle2X2.png", 129, 711- 500));
+		opponentShips.add(new Ship(2, 2, "res/waffle2X2.png", 211, 711- 500));
+		opponentShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 690- 500));
+		opponentShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 727- 500));
+		opponentShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 764- 500));
+		
 		repaint();
 	}
 	
@@ -97,6 +112,7 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		g2.drawImage(gameBoard, 0, 0, null);
 		opponentGrid.draw(g2);
 		playerGrid.draw(g2);
+		quitButton.draw(g2);
 		
 		if(outgoingShot != null)
 		{
@@ -120,10 +136,13 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		
 		if(!setup)
 		{
+			numShipPlaced = 0;
 			for(Ship s: playerShips)
 			{
+				
 				if(s.getToggleLockedInPlace())
 				{
+					numShipPlaced += 1;
 					continue;
 				}
 				//Click inside of ship...
@@ -150,11 +169,30 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 					}
 				}
 			}
+			if (numShipPlaced == 6) {
+				setup = true;
+			}
 		}
 		
-		if(clickInOpponentGrid && isTurn)
-		{
-			outgoingShot = new Shot(me.getPoint(), 1, 1, "res/greenBall.png");
+		//programming for after the board is setup
+		else {
+			if(clickInOpponentGrid && isTurn)
+			{
+				outgoingShot = new Shot(me.getPoint(), 1, 1, "res/greenBall.png");
+				int [] indices = opponentGrid.findIndices(me.getPoint());
+				for (Ship s: opponentShips) {
+					//if 
+				}
+
+
+			}
+			
+		}
+		
+		
+		
+		if (quitButton.getRect().contains(me.getPoint())) {
+			System.exit(0);
 		}
 		
 		repaint();
@@ -193,19 +231,26 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 	}
 
 	//FINISHED
+	@Override
 	public void mouseMoved(MouseEvent me) 
 	{
 		//Avoid short circuit evaluation...
 		boolean opponent = opponentGrid.find(me.getPoint());
 		boolean player = playerGrid.find(me.getPoint());
 		
-		if(isTurn && (opponent || player))
+		if(isTurn && (opponent || player)) {
 			this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-		else
+		}
+		else {
 			this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+		}
 		
 		if(isTurn)
 		{
+			if (Ship.getSelectedShip() != null) {
+				Ship.getSelectedShip().moveShip(me.getX(),me.getY());
+			}
+			
 			playerGrid.shotHover(me.getPoint());
 			opponentGrid.shotHover(me.getPoint());
 		}
