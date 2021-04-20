@@ -8,7 +8,6 @@ import java.awt.image.BufferedImage;
 public class Square extends Rectangle2D.Double
 {
 	private BufferedImage display;
-	//testing publicity here
 	public Color fillColor; 
 	private boolean shipPlaced; 
 	private static final int SQUARE_DIMENSIONS = 34; 

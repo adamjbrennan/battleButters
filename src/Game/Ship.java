@@ -16,6 +16,8 @@ public class Ship
 	private Color outlineColor;
 	private BufferedImage shipImage;
 	
+	private boolean hits [][];
+	
 	private int startingX;
 	private int startingY;
 	
@@ -34,10 +36,15 @@ public class Ship
 	{
 		this.startingX = x;
 		this.startingY = y;
+		
 		this.currentX = this.startingX;
 		this.currentY = this.startingY;
+		
 		this.rows = r;
 		this.columns = c;
+		
+		this.hits = new boolean[rows][columns];
+		
 		try 
 		{
 			this.shipImage = ImageIO.read(new File(si));
@@ -86,59 +93,57 @@ public class Ship
 		this.isSelected = b;
 	}
 	
-	public boolean getToggleSelected()
+	public boolean getIseSelected()
 	{
 		return this.isSelected;
 	}
 	
-	public void setToggleLockedInPlace(boolean b)
+	public void setLockedInPlace(boolean b)
 	{
 		this.lockedInPlace = b;
 	}
 	
-	public boolean getToggleLockedInPlace()
+	public boolean getLockedInPlace()
 	{
 		return this.lockedInPlace;
 	}
-	
+
 	public static Ship getSelectedShip()
 	{
 		return selectedShip;
 	}
 	
+	//Sets the shit that is currently selected...
 	public static void setSelectedShip(Ship s)
 	{
 		selectedShip = s;
 	}
 	
+	//Gets the number of rows that the ship has...
 	public int getRows()
 	{
 		return rows;
 	}
 	
+	//Gets the number of columns that the ship has...
 	public int getColumns()
 	{
 		return columns;
 	}
 	
-	public void setSunk(boolean b) {
-		this.isSunk = b;
+	public boolean isSunk() 
+	{
+		for(int i = 0; i < this.hits.length; i++)
+		{
+			for(int j = 0; j < this.hits[i].length; j++)
+			{
+				if(!this.hits[i][j])
+				{
+					return false;
+				}
+			}
+		}
+		return true;
 	}
-	
-	public boolean getSunk() {
-		return isSunk;
-	}
-//	public void fillShip()
-//	{
-//		int x = startingX;
-//		int y = startingY; 
-//		
-//		for(int i = 0; i < shipFrags.length; i++)
-//		{
-//			for(int j = 0; j < shipFrags[i].length; j++)
-//			{
-//				
-//			}
-//		}
-//	}
+
 }

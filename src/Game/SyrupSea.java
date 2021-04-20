@@ -140,7 +140,7 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 			for(Ship s: playerShips)
 			{
 				
-				if(s.getToggleLockedInPlace())
+				if(s.getLockedInPlace())
 				{
 					numShipPlaced += 1;
 					continue;
@@ -161,7 +161,7 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 						
 						Ship.getSelectedShip().moveShip(playerGrid.getSquareArray()[indices[0]][indices[1]].x, playerGrid.getSquareArray()[indices[0]][indices[1]].y);
 						
-						Ship.getSelectedShip().setToggleLockedInPlace(true);
+						Ship.getSelectedShip().setLockedInPlace(true);
 						
 						Ship.setSelectedShip(null);
 						s.setToggleSelected(false);
