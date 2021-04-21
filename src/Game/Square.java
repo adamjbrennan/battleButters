@@ -4,6 +4,10 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 public class Square extends Rectangle2D.Double
 {
@@ -16,6 +20,7 @@ public class Square extends Rectangle2D.Double
 	{
 		super(x, y, SQUARE_DIMENSIONS, SQUARE_DIMENSIONS);
 		this.fillColor = fc;
+		this.display = null;
 	}
 	
 	public void draw(Graphics2D g)
@@ -24,6 +29,10 @@ public class Square extends Rectangle2D.Double
 		g.draw(this);
 		g.setColor(fillColor);
 		g.fill(this);
+		if(display != null)
+		{
+			g.drawImage(display, (int)this.getX(), (int)this.getY(), null);
+		}
 	}
 	
 	public void setX(double x)
@@ -36,6 +45,18 @@ public class Square extends Rectangle2D.Double
 		this.y = y;
 	}
 	
+	public void loadDisplay() 
+	{
+		try
+		{
+			this.display = ImageIO.read(new File("res/butter.png"));
+		}
+		catch (IOException e) {
+			System.err.println("Could not read in butter image!");
+			System.exit(-1);
+		}
+	}
+	
 	public void setColor(Color c, int a)
 	{
 		this.fillColor = new Color(c.getRed(), c.getGreen(), c.getBlue(), a);
@@ -46,9 +67,14 @@ public class Square extends Rectangle2D.Double
 		return SQUARE_DIMENSIONS;
 	}
 	
-	public void toggleShipInLocation()
+	public void setShipInLocation(boolean b)
 	{
-		this.shipPlaced = !this.shipPlaced;
+		this.shipPlaced = b;
+	}
+	
+	public boolean getShipInLocation()
+	{
+		return this.shipPlaced;
 	}
 	
 	

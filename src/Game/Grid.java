@@ -21,7 +21,7 @@ public class Grid
 		this.topLeftY = y;
 		this.fireHoverColor = hoverColor;
 		grid = new Square[10][10];
-		placeGrid();
+		this.placeGrid();
 	}
 	
 	public void placeGrid() 
@@ -45,41 +45,27 @@ public class Grid
 	public void draw(Graphics2D g)
 	{
 		for(int i = 0; i < grid.length; i++)
-		{
 			for(int j = 0; j < grid[i].length; j++)
-			{
 				grid[i][j].draw(g);
-			}
-		}
 	}
 	
 	public void shotHover(Point p)
 	{
 		for(int i = 0; i < grid.length; i++)
-		{
 			for(int j = 0; j < grid[i].length; j++)
-			{
 				if(grid[i][j].contains(p))
-				{
 					grid[i][j].setColor(this.fireHoverColor, 50);
-				}
 				else
 					grid[i][j].setColor(this.fireHoverColor, 0);
-			}
-		}
 	}
 	
 	//Determines if the grid contains Point p
 	public boolean find(Point p)
 	{
 		for(int i = 0; i < grid.length; i++)
-		{
 			for(int j = 0; j < grid[i].length; j++)
-			{
 				if(grid[i][j].contains(p))
 					return true;
-			}
-		}
 		return false;
 	}
 	
@@ -87,52 +73,58 @@ public class Grid
 	{
 		int[] indices = {-1, -1};
 		for(int i = 0; i < grid.length; i++)
-		{
 			for(int j = 0; j < grid[i].length; j++)
-			{
 				if(grid[i][j].contains(p))
 				{
 					indices[0] = i;
 					indices[1] = j;
 				}
-			}
-		}
 		return indices;
 	}
 	
 	public void placeHover(Point p, Ship s)
 	{
 		for(int i = 0; i < grid.length; i++)
-		{
 			for(int j = 0; j < grid[i].length; j++)
-			{
 				if(grid[i][j].contains(p))
 				{
 					for(int i2 = 0; i2 < grid.length; i2++)
-					{
 						for(int j2 = 0; j2 < grid[i2].length; j2++)
-						{
-							if(i2 >= i && i2 < i + s.getRows() && j2 >= j && j2 < j + s.getColumns())
-							{
-								System.out.println("Changed ["+i2+", "+j2+"]");
+							if(i2 >= i && i2 < i + s.getSize() && j2 >= j && j2 < j + s.getSize())
 								grid[i2][j2].setColor(Color.BLUE, 50);
-							}
+					
 							else
-							{
 								grid[i2][j2].setColor(Color.BLACK, 0);
-							}
-						}
-					}
 					return;
 				}
 				else
 					grid[i][j].setColor(Color.BLACK, 0);
-			}
-		}
 	}
 	
+	public void place(int r, int c, Ship s)
+	{
+		for(int i = r; i < r + s.getSize(); i++)
+			for(int j = c; j < c + s.getSize(); j++)
+				grid[i][j].setShipInLocation(true);
+	}
 	public Square[][] getSquareArray()
 	{
 		return this.grid;
+	}
+	
+	public String toString()
+	{
+		StringBuilder s = new StringBuilder("[");
+		for(int i = 0; i < grid.length; i++)
+		{
+			for(int j = 0; j < grid[i].length; j++)
+			{
+				s.append(grid[i][j].getShipInLocation());
+				if(j < grid[i].length - 1)
+					s.append(",");
+			}
+			s.append("]\n[");
+		}
+		return s.toString().substring(0, s.toString().length() - 1);
 	}
 }
