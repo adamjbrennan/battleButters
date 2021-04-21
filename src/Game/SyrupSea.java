@@ -29,17 +29,12 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 	private Button quitButton;
 	private BufferedImage gameBoard;
 	
-	private ArrayList<Button> hitMarkers;
 	private ArrayList<Ship> playerShips;
 	private ArrayList<Ship> opponentShips;
-	
-	private Shot outgoingShot;
+	private ArrayList<BufferedImage> gameBoards;
 	
 	private boolean isTurn;
 	private boolean setup; 
-	
-	private int numShipPlaced;
-	
 	
 	
 	private SyrupSea(int width, int height, Color color)
@@ -53,19 +48,9 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		this.addKeyListener(this);
 		this.setFocusable(true);
 		this.setFocusTraversalKeysEnabled(false);
-		
-		try
-		{
-			gameBoard = ImageIO.read(new File("res/gameTemplate.png"));
-		}
-		catch(Exception e)
-		{
-			System.err.println("Could not read in game template image! Check file path!");
-			System.exit(-1);
-		}
 
-		opponentGrid = new Grid(0, 1, new Color(255, 0, 0, 255));
-		playerGrid = new Grid(0, 347, new Color(255, 255, 255, 5));
+		opponentGrid = new Grid(0, 1, new Color(0, 255, 0, 50));
+		playerGrid = new Grid(0, 347, new Color(255, 0, 0, 50));
 		
 		quitButton = new Button(BattleButters.getGameWidth() - 89, BattleButters.getGameHeight() - 80, 100, 100, Color.BLACK);
 		
@@ -74,20 +59,28 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		
 		playerShips = new ArrayList<Ship>();
 		opponentShips = new ArrayList<Ship>();
+		gameBoards = new ArrayList<BufferedImage>();
 		
-		playerShips.add(new Ship(3, 3, "res/waffle3X3.jpg", 7, 693));
-		playerShips.add(new Ship(2, 2, "res/waffle2X2.png", 129, 711));
-		playerShips.add(new Ship(2, 2, "res/waffle2X2.png", 211, 711));
-		playerShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 690));
-		playerShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 727));
-		playerShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 764));
+		try
+		{
+			gameBoards.add(ImageIO.read(new File("res/gameTemplate.png")));
+			gameBoards.add(ImageIO.read(new File("res/yourTurn.png")));
+			gameBoards.add(ImageIO.read(new File("res/opponentTurn.png")));
+		}
+		catch(Exception e)
+		{
+			System.err.println("Could not read in game template image! Check file path!");
+			System.exit(-1);
+		}
 		
-//		opponentShips.add(new Ship(3, 3, "res/waffle3X3.jpg", 7, 693 - 500));
-//		opponentShips.add(new Ship(2, 2, "res/waffle2X2.png", 129, 711- 500));
-//		opponentShips.add(new Ship(2, 2, "res/waffle2X2.png", 211, 711- 500));
-//		opponentShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 690- 500));
-//		opponentShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 727- 500));
-//		opponentShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 764- 500));
+		gameBoard = gameBoards.get(0);
+		
+		playerShips.add(new Ship(3, "res/waffle3X3.png", 7.0, 693.0));
+		playerShips.add(new Ship(2, "res/waffle2X2.png", 129.0, 711.0));
+		playerShips.add(new Ship(2, "res/waffle2X2.png", 211.0, 711.0));
+		playerShips.add(new Ship(1, "res/waffle1X1.png", 299.0, 690.0));
+		playerShips.add(new Ship(1, "res/waffle1X1.png", 299.0, 727.0));
+		playerShips.add(new Ship(1, "res/waffle1X1.png", 299.0, 764.0));
 		
 		repaint();
 	}
@@ -95,104 +88,101 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 	public static SyrupSea getInstance()
 	{
 		if(single_sea == null)
+		{
 			single_sea = new SyrupSea(BattleButters.getGameWidth(), BattleButters.getGameHeight(), Color.WHITE);
+		}
 		
 		return single_sea;
 	}
-	 
+	
 	@Override 
 	protected void paintComponent(Graphics g) 
 	{
-		System.err.println("Graphics Rendered!");
-		
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;
 		
 		g2.drawImage(gameBoard, 0, 0, null);
+		
+		for(Ship s: playerShips)
+			s.draw(g2);
+		
 		opponentGrid.draw(g2);
 		playerGrid.draw(g2);
 		quitButton.draw(g2);
-		
-		if(outgoingShot != null)
-		{
-			outgoingShot.draw(g2);
-		}
-		
-		for(Ship s: playerShips)
-		{
-			s.draw(g2);
-		}
-		System.out.println(playerShips.get(5).getRect().getHeight());
 	}
 	
-
-	
 	@Override
-	public void mouseClicked(MouseEvent me) {
-		
-		boolean clickInOpponentGrid = opponentGrid.find(me.getPoint());
-		boolean clickInPlayerGrid = playerGrid.find(me.getPoint());
-		
+	public void mouseClicked(MouseEvent me) 
+	{	
 		if(!setup)
 		{
-			numShipPlaced = 0;
-			for(Ship s: playerShips)
+			if(Ship.getSelectedShip() != null && playerGrid.find(me.getPoint()))
 			{
-				
-				if(s.getLockedInPlace())
+				Ship.getSelectedShip().moveShip(playerGrid.getSquareArray()[playerGrid.findIndices(me.getPoint())[0]][playerGrid.findIndices(me.getPoint())[1]].x, playerGrid.getSquareArray()[playerGrid.findIndices(me.getPoint())[0]][playerGrid.findIndices(me.getPoint())[1]].y);
+				Ship.getSelectedShip().setLockedInPlace(true);
+				Ship.getSelectedShip().setColor(Color.BLACK);
+				Ship.getSelectedShip().placeInPlayerGrid(me.getPoint());
+				Ship.setSelectedShip(null);
+//				System.out.println(playerGrid);
+			}
+			
+			else
+			{
+				for(Ship s: playerShips)
 				{
-					numShipPlaced += 1;
-					continue;
-				}
-				//Click inside of ship...
-				if(s.getRect().contains(me.getPoint()) && Ship.getSelectedShip() == null)
-				{
-					s.setToggleSelected(true);
-					Ship.setSelectedShip(s);
-					s.setColor(Color.RED);
-				}
-				//Click outside of ship...
-				else
-				{
-					if(Ship.getSelectedShip() != null && clickInPlayerGrid)
+					if(s.getLockedInPlace())
 					{
-						int[] indices = playerGrid.findIndices(me.getPoint());
-						
-						Ship.getSelectedShip().moveShip(playerGrid.getSquareArray()[indices[0]][indices[1]].x, playerGrid.getSquareArray()[indices[0]][indices[1]].y);
-						
-						Ship.getSelectedShip().setLockedInPlace(true);
-						
-						Ship.setSelectedShip(null);
-						s.setToggleSelected(false);
-						s.setColor(Color.BLACK);
+						continue;
+					}
+					
+					if(s.getRect().contains(me.getPoint()) && Ship.getSelectedShip() == null)
+					{
+						Ship.setSelectedShip(s);
+						s.setColor(Color.RED);
 					}
 				}
 			}
-			if (numShipPlaced == 6) {
-				setup = true;
-			}
 			
+			if(Ship.getPlacedShips() == 6)
+			{
+				opponentShips = Ship.randomlyPlaceShips();
+				
+				setup = true;
+				isTurn = true;
+				
+				gameBoard = gameBoards.get(0);
+			}
 			
 		}
 		
 		//programming for after the board is setup
-		else {
-			if(clickInOpponentGrid && isTurn)
+		else 
+		{
+			if(isTurn)
 			{
-				outgoingShot = new Shot(me.getPoint(), 1, 1, "res/greenBall.png");
-				int [] indices = opponentGrid.findIndices(me.getPoint());
-				for (Ship s: opponentShips) {
-					//if 
+				//Fire shot at opponent
+				if(opponentGrid.find(me.getPoint()))
+				{
+					Shot outgoingShot = new Shot(me.getPoint(), 1, 1, "res/greenBall.png", Color.MAGENTA, true);
+					
+					while(!opponentGrid.getSquareArray()[opponentGrid.findIndices(me.getPoint())[0]][opponentGrid.findIndices(me.getPoint())[1]].intersects(outgoingShot.getShotEllipse().getBounds2D()))
+					{
+						outgoingShot.moveCloser();
+						outgoingShot.draw((Graphics2D)this.getGraphics());
+					}					
+					
+					opponentGrid.getSquareArray()[opponentGrid.findIndices(me.getPoint())[0]][opponentGrid.findIndices(me.getPoint())[1]].loadDisplay();
+					isTurn = false;
+					gameBoard = gameBoards.get(2);
+					int[] shotIndices = opponentGrid.findIndices(me.getPoint());
+					opponentGrid.getSquareArray()[shotIndices[0]][shotIndices[1]].setColor(Color.BLACK, 0);
+					
 				}
-
-
 			}
-			
 		}
 		
-		
-		
-		if (quitButton.contains(me.getPoint())) {
+		if (quitButton.contains(me.getPoint())) 
+		{
 			System.exit(0);
 		}
 		
@@ -248,9 +238,6 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		
 		if(isTurn)
 		{
-			if (Ship.getSelectedShip() != null) {
-				Ship.getSelectedShip().moveShip(me.getX(),me.getY());
-			}
 			
 			playerGrid.shotHover(me.getPoint());
 			opponentGrid.shotHover(me.getPoint());
@@ -269,7 +256,6 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		
 		switch(arg0.getKeyCode())
 		{
-		
 				
 		}
 		
@@ -287,15 +273,14 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		
 	}
 
-	/**
-	 * Update the grid display at a specific point. Only takes one specific point in
-	 * space, so the PowerUps that have alrger damage areas will need to send each
-	 * point they hit.
-	 * 
-	 * @param xP1 - X Position for the first player
-	 * @param yP1 - Y Position for the first player
-	 * @param zP1 - Z Position for the first player
-	 * 
-	 */
+	public Grid getPlayerGrid()
+	{
+		return this.playerGrid;
+	}
+	
+	public Grid getOpponentGrid()
+	{
+		return this.opponentGrid;
+	}
 	
 }
