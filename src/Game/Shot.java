@@ -16,8 +16,10 @@ public class Shot
 	private int effectedWidth;
 	//TODO - Implement different effected heights for different shots 
 	private int effectedHeight;
+	
 	private double currentX = 425.0;
 	private double currentY = 835.0;
+	
 	private BufferedImage shotImage; 
 	boolean beingFired;
 	

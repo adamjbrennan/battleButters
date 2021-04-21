@@ -21,12 +21,12 @@ import javax.swing.event.MouseInputListener;
 public class SyrupSea extends JPanel implements KeyListener, MouseInputListener {
 	
 	private static SyrupSea single_sea = null;
+	private SyrupSea3DModel single_sea_3D_model;
 
 	private Grid playerGrid;
 	private Grid opponentGrid;
 	
 	private Button quitButton;
-	
 	private BufferedImage gameBoard;
 	
 	private ArrayList<Button> hitMarkers;
@@ -69,7 +69,6 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		
 		quitButton = new Button(BattleButters.getGameWidth() - 89, BattleButters.getGameHeight() - 80, 100, 100, Color.BLACK);
 		
-		
 		setup = false;
 		isTurn = false;
 		
@@ -83,12 +82,12 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		playerShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 727));
 		playerShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 764));
 		
-		opponentShips.add(new Ship(3, 3, "res/waffle3X3.jpg", 7, 693 - 500));
-		opponentShips.add(new Ship(2, 2, "res/waffle2X2.png", 129, 711- 500));
-		opponentShips.add(new Ship(2, 2, "res/waffle2X2.png", 211, 711- 500));
-		opponentShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 690- 500));
-		opponentShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 727- 500));
-		opponentShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 764- 500));
+//		opponentShips.add(new Ship(3, 3, "res/waffle3X3.jpg", 7, 693 - 500));
+//		opponentShips.add(new Ship(2, 2, "res/waffle2X2.png", 129, 711- 500));
+//		opponentShips.add(new Ship(2, 2, "res/waffle2X2.png", 211, 711- 500));
+//		opponentShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 690- 500));
+//		opponentShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 727- 500));
+//		opponentShips.add(new Ship(1, 1, "res/waffle1X1.png", 299, 764- 500));
 		
 		repaint();
 	}
@@ -140,7 +139,7 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 			for(Ship s: playerShips)
 			{
 				
-				if(s.getToggleLockedInPlace())
+				if(s.getLockedInPlace())
 				{
 					numShipPlaced += 1;
 					continue;
@@ -161,7 +160,7 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 						
 						Ship.getSelectedShip().moveShip(playerGrid.getSquareArray()[indices[0]][indices[1]].x, playerGrid.getSquareArray()[indices[0]][indices[1]].y);
 						
-						Ship.getSelectedShip().setToggleLockedInPlace(true);
+						Ship.getSelectedShip().setLockedInPlace(true);
 						
 						Ship.setSelectedShip(null);
 						s.setToggleSelected(false);
@@ -172,6 +171,8 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 			if (numShipPlaced == 6) {
 				setup = true;
 			}
+			
+			
 		}
 		
 		//programming for after the board is setup
@@ -268,7 +269,7 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		
 		switch(arg0.getKeyCode())
 		{
-			
+		
 				
 		}
 		

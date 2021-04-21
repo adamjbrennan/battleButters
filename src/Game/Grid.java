@@ -28,6 +28,7 @@ public class Grid
 	{
 		double x = topLeftX;
 		double y = topLeftY;
+		
 		for(int i = 0; i < grid.length; i++)
 		{
 			for(int j = 0; j < grid[i].length; j++)
@@ -35,6 +36,7 @@ public class Grid
 				grid[i][j] = new Square(x, y, new Color(0, 0, 0, 0));
 				x += Square.getSquareDimensions();
 			}
+			
 			x = topLeftX;
 			y += Square.getSquareDimensions();
 		}
@@ -67,6 +69,7 @@ public class Grid
 		}
 	}
 	
+	//Determines if the grid contains Point p
 	public boolean find(Point p)
 	{
 		for(int i = 0; i < grid.length; i++)
