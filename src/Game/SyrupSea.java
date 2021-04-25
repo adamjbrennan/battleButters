@@ -1,5 +1,6 @@
 package Game;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 
 
@@ -7,6 +8,9 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -15,13 +19,15 @@ import java.io.File;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
+import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.event.MouseInputListener;
 
-public class SyrupSea extends JPanel implements KeyListener, MouseInputListener {
+public class SyrupSea extends JPanel implements KeyListener, MouseInputListener, ActionListener {
 	
 	private static SyrupSea single_sea = null;
-	private SyrupSea3DModel single_sea_3D_model;
 
 	private Grid playerGrid;
 	private Grid opponentGrid;
@@ -48,6 +54,7 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		this.addKeyListener(this);
 		this.setFocusable(true);
 		this.setFocusTraversalKeysEnabled(false);
+		this.setLayout(new BorderLayout());
 
 		opponentGrid = new Grid(0, 1, new Color(0, 255, 0, 50));
 		playerGrid = new Grid(0, 347, new Color(255, 0, 0, 50));
@@ -63,9 +70,8 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		
 		try
 		{
-			gameBoards.add(ImageIO.read(new File("res/gameTemplate.png")));
-			gameBoards.add(ImageIO.read(new File("res/yourTurn.png")));
 			gameBoards.add(ImageIO.read(new File("res/opponentTurn.png")));
+			gameBoards.add(ImageIO.read(new File("res/yourTurn.png")));
 		}
 		catch(Exception e)
 		{
@@ -108,7 +114,6 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		
 		opponentGrid.draw(g2);
 		playerGrid.draw(g2);
-		quitButton.draw(g2);
 	}
 	
 	@Override
@@ -122,8 +127,9 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 				Ship.getSelectedShip().setLockedInPlace(true);
 				Ship.getSelectedShip().setColor(Color.BLACK);
 				Ship.getSelectedShip().placeInPlayerGrid(me.getPoint());
+				playerGrid.setColor(Color.BLACK, 0);
 				Ship.setSelectedShip(null);
-//				System.out.println(playerGrid);
+				return;
 			}
 			
 			else
@@ -143,41 +149,23 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 				}
 			}
 			
-			if(Ship.getPlacedShips() == 6)
-			{
-				opponentShips = Ship.randomlyPlaceShips();
-				
-				setup = true;
-				isTurn = true;
-				
-				gameBoard = gameBoards.get(0);
-			}
+			
 			
 		}
 		
 		//programming for after the board is setup
 		else 
 		{
-			if(isTurn)
+			if(isTurn && opponentGrid.find(me.getPoint()))
 			{
-				//Fire shot at opponent
-				if(opponentGrid.find(me.getPoint()))
-				{
-					Shot outgoingShot = new Shot(me.getPoint(), 1, 1, "res/greenBall.png", Color.MAGENTA, true);
-					
-					while(!opponentGrid.getSquareArray()[opponentGrid.findIndices(me.getPoint())[0]][opponentGrid.findIndices(me.getPoint())[1]].intersects(outgoingShot.getShotEllipse().getBounds2D()))
-					{
-						outgoingShot.moveCloser();
-						outgoingShot.draw((Graphics2D)this.getGraphics());
-					}					
-					
-					opponentGrid.getSquareArray()[opponentGrid.findIndices(me.getPoint())[0]][opponentGrid.findIndices(me.getPoint())[1]].loadDisplay();
-					isTurn = false;
-					gameBoard = gameBoards.get(2);
-					int[] shotIndices = opponentGrid.findIndices(me.getPoint());
-					opponentGrid.getSquareArray()[shotIndices[0]][shotIndices[1]].setColor(Color.BLACK, 0);
-					
-				}
+				isTurn = false;
+				new Shot(me.getPoint(), ShotType.JAMSHOT, true).fire();
+				gameBoard = gameBoards.get(0);
+				opponentGrid.getSquareArray()[opponentGrid.findIndices(me.getPoint())[0]][opponentGrid.findIndices(me.getPoint())[1]].setColor(Color.BLACK, 0);
+				if(opponentGrid.isDefeated())
+					GameConsole.getInstance().writeLine("You win!\n");
+				else
+					GameConsole.getInstance().writeLine("It is the CPU's turn! Press the 'N' key to simulate their move!\n");
 			}
 		}
 		
@@ -244,7 +232,6 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 		}
 		else if(Ship.getSelectedShip() != null)
 		{
-			System.out.println("Ship selected and hovering!");
 			playerGrid.placeHover(me.getPoint(), Ship.getSelectedShip());
 		}
 		
@@ -252,13 +239,39 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 	}
 
 	@Override
-	public void keyPressed(KeyEvent arg0) {
+	public void keyPressed(KeyEvent arg0)
+	{
 		
 		switch(arg0.getKeyCode())
 		{
-				
+			case KeyEvent.VK_N:
+				if(!setup && Ship.getPlacedShips() == 6)
+				{
+					opponentShips = Ship.randomlyPlaceShips();
+					opponentGrid.runOpponentPlaceAnimation();
+					
+					setup = true;
+					isTurn = true;
+					
+					gameBoard = gameBoards.get(1);
+				}
+				else if (setup && !isTurn)
+				{
+					isTurn = true;
+					new Shot(Shot.chooseShot(), false).fire();
+					if(playerGrid.isDefeated())
+						GameConsole.getInstance().writeLine("You lose!\n");
+					else
+						GameConsole.getInstance().writeLine("It is your turn! Fire a shot!\n");
+					gameBoard = gameBoards.get(1);
+	
+				}
+			break;
+			case KeyEvent.VK_P:			
+			break;
 		}
-		
+		repaint();
+		System.out.println("painted!");
 	}
 
 	@Override
@@ -281,6 +294,13 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener 
 	public Grid getOpponentGrid()
 	{
 		return this.opponentGrid;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) 
+	{
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

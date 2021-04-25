@@ -13,17 +13,20 @@ import java.util.Arrays;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageOutputStream;
 
-public class Ship
+public class Ship implements Drawable
 {
 	private Rectangle2D.Double shipContainer;
+	
 	private Color outlineColor;
+	
 	private BufferedImage shipImage;
-	private boolean hits [][];
+	
 	private double currentX;
 	private double currentY;
-	private int size;
+	
 	private boolean lockedInPlace;
 	
+	private int size;
 	private static int shipsPlaced = 0;
 	private static Ship selectedShip;
 	
@@ -32,7 +35,6 @@ public class Ship
 		this.currentX = x;
 		this.currentY = y;
 		this.size = s;
-		this.hits = new boolean[s][s];
 		this.outlineColor = Color.BLACK;
 		try 
 		{
@@ -53,7 +55,7 @@ public class Ship
 	
 	public void draw(Graphics2D g2)
 	{
-		if(!lockedInPlace)
+		if(!this.lockedInPlace)
 		{
 			g2.setColor(this.outlineColor);
 			g2.draw(this.shipContainer);
@@ -93,8 +95,7 @@ public class Ship
 	{
 		return selectedShip;
 	}
-	
-	//Sets the shit that is currently selected...
+
 	public static void setSelectedShip(Ship s)
 	{
 		selectedShip = s;
@@ -152,14 +153,4 @@ public class Ship
 		}
 		return new ArrayList<Ship>(Arrays.asList(returnArray));
 	}
-	
-	public boolean isSunk() 
-	{
-		for(int i = 0; i < this.hits.length; i++)
-			for(int j = 0; j < this.hits[i].length; j++)
-				if(!this.hits[i][j])
-					return false;
-		return true;
-	}
-
 }

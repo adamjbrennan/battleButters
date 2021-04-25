@@ -10,9 +10,6 @@ import javax.imageio.ImageIO;
 
 public class Button extends Rectangle2D.Double {
 	
-	private int startingX;
-	private int startingY;
-	
 	private Color outlineColor;
 	
 	public Button (int x, int y, int width, int height, Color c) 
@@ -23,11 +20,6 @@ public class Button extends Rectangle2D.Double {
 	
 	public void draw(Graphics2D g2)
 	{
-		//if(!lockedInPlace)
-		//{
-		//	g2.setColor(this.outlineColor);
-		//	g2.draw(this.buttonContainer);
-		//}
 		g2.setColor(outlineColor);
 		g2.draw(this);
 	}

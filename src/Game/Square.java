@@ -9,11 +9,14 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-public class Square extends Rectangle2D.Double
+public class Square extends Rectangle2D.Double implements Drawable
 {
 	private BufferedImage display;
+	
 	public Color fillColor; 
+	
 	private boolean shipPlaced; 
+	
 	private static final int SQUARE_DIMENSIONS = 34; 
 	
 	public Square(double x, double y, Color fc)
@@ -47,13 +50,35 @@ public class Square extends Rectangle2D.Double
 	
 	public void loadDisplay() 
 	{
-		try
+		if(this.display == null)
 		{
-			this.display = ImageIO.read(new File("res/butter.png"));
-		}
-		catch (IOException e) {
-			System.err.println("Could not read in butter image!");
-			System.exit(-1);
+			if(shipPlaced)
+			{
+				try
+				{
+					if(this.x >= 347)
+						this.display = ImageIO.read(new File("res/butter.png"));
+					else
+						this.display = ImageIO.read(new File("res/butterOpponent.png"));
+					GameConsole.getInstance().writeLine("1X Hit!\n");
+				}
+				catch (IOException e) 
+				{
+					System.err.println("Could not read in butter image!");
+					System.exit(-1);
+				}
+			}
+			else
+			{
+				try
+				{
+					this.display = ImageIO.read(new File("res/splash.png"));
+				}
+				catch (IOException e) {
+					System.err.println("Could not read in splash image!");
+					System.exit(-1);
+				}
+			}
 		}
 	}
 	

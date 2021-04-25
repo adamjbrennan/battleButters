@@ -1,26 +1,24 @@
 package Game;
 
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.event.MouseEvent;
+import java.util.HashSet;
 
-import javax.swing.JPanel;
-
-public class Grid
+public class Grid implements Drawable
 {
 	private Square[][] grid;
 	private Color fireHoverColor;
 	private double topLeftX;
 	private double topLeftY;
 	
+	
 	public Grid(double x, double y, Color hoverColor)
 	{
 		this.topLeftX = x;
 		this.topLeftY = y;
 		this.fireHoverColor = hoverColor;
-		grid = new Square[10][10];
+		this.grid = new Square[10][10];
 		this.placeGrid();
 	}
 	
@@ -59,7 +57,6 @@ public class Grid
 					grid[i][j].setColor(this.fireHoverColor, 0);
 	}
 	
-	//Determines if the grid contains Point p
 	public boolean find(Point p)
 	{
 		for(int i = 0; i < grid.length; i++)
@@ -112,6 +109,61 @@ public class Grid
 		return this.grid;
 	}
 	
+	public void setColor(Color c, int a)
+	{
+		for(int i = 0; i < grid.length; i++)
+			for(int j = 0; j < grid[i].length; j++)
+				grid[i][j].setColor(c, a);
+	}
+	
+	public void runOpponentPlaceAnimation()
+	{
+		Color currentColor = Color.RED;
+		
+		long startTime = System.currentTimeMillis() / 1000;
+		long currentTime = 0;
+		
+		int prior = 0;
+		boolean changed = true;
+		
+		while(currentTime < 7)
+		{
+			currentTime = System.currentTimeMillis() / 1000 - startTime;
+			
+			if(prior != currentTime)
+			{
+				prior = (int)currentTime;
+				changed = true;
+			}
+			
+			switch((int)currentTime)
+	        {
+	        	case 1:
+	        		currentColor = Color.ORANGE;
+	        		break;
+	        	case 2:
+	        		currentColor = Color.YELLOW;
+	        		break;
+	        	case 3:
+	        		currentColor = Color.GREEN;
+	        		break;
+	        	case 4:
+	        		currentColor = Color.BLUE;
+	        		break;
+	        	case 5:
+	        		currentColor = Color.MAGENTA;
+	        		break;
+	        }
+			if(changed)
+			{
+				this.setColor(currentColor, 100);
+				this.draw((Graphics2D)SyrupSea.getInstance().getGraphics());
+				changed = false;
+			}	
+		}
+		this.setColor(Color.BLACK, 0);
+	}
+	
 	public String toString()
 	{
 		StringBuilder s = new StringBuilder("[");
@@ -126,5 +178,14 @@ public class Grid
 			s.append("]\n[");
 		}
 		return s.toString().substring(0, s.toString().length() - 1);
+	}
+	
+	public boolean isDefeated()
+	{
+		for(int i = 0; i < grid.length; i++)
+			for(int j = 0; j < grid[i].length; j++)
+				if(grid[i][j].getShipInLocation())
+					return false;
+		return true;
 	}
 }

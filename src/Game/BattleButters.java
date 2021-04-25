@@ -1,27 +1,23 @@
 package Game;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
-import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.OverlayLayout;
 
-public class BattleButters extends JFrame 
+
+public class BattleButters
 {
-	private static final int PROGRAM_WIDTH = 425; 
-	private static final int PROGRAM_HEIGHT = 835; 
-
+	BufferedImage icon;
+	private JFrame gameFrame;
+	private JFrame gameConsole;
+	private static final int SYRUP_SEA_PROGRAM_WIDTH = 425; 
+	private static final int SYRUP_SEA_PROGRAM_HEIGHT = 835; 
+	private static final int GAME_CONSOLE_WIDTH = 425;
+	private static final int GAME_CONSOLE_HEIGHT = 225;
+	
 	public static void main(String[] args) throws IOException 
 	{
 		new BattleButters().start();
@@ -29,32 +25,54 @@ public class BattleButters extends JFrame
 	
 	public void start()
 	{
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setTitle("Battle Butters");
-		this.setResizable(false);
-		this.setSize(PROGRAM_WIDTH, PROGRAM_HEIGHT);
-		try
+		try 
 		{
-			this.setIconImage(ImageIO.read(new File("res/icon.PNG")));
+			icon = ImageIO.read(new File("res/icon.PNG"));
 		}
-		catch(Exception e)
+		catch (IOException e)
 		{
-			System.err.println("Could not read in icon file! Check file path!");
+			System.err.println("Could not read in icon image!");
 			System.exit(-1);
 		}
 		
-		this.add(SyrupSea.getInstance());
-		this.setVisible(true);
+		gameFrame = new JFrame();
+		gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gameFrame.setTitle("BattleButters");
+		gameFrame.setResizable(false);
+		gameFrame.setSize(SYRUP_SEA_PROGRAM_WIDTH, SYRUP_SEA_PROGRAM_HEIGHT);
+		gameFrame.setIconImage(icon);
+		gameFrame.add(SyrupSea.getInstance());
+		gameFrame.setVisible(true);
+		
+		gameConsole = new JFrame();
+		gameConsole.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gameConsole.setTitle("Battle Butters Console");
+		gameConsole.setResizable(false);
+		gameConsole.setSize(GAME_CONSOLE_WIDTH, GAME_CONSOLE_HEIGHT);
+		gameConsole.setIconImage(icon);
+		gameConsole.setVisible(true);
+		gameConsole.add(GameConsole.getInstance());
 	}
 	
 	public static int getGameWidth()
 	{
-		return PROGRAM_WIDTH;
+		return SYRUP_SEA_PROGRAM_WIDTH;
 	}
 	
 	public static int getGameHeight()
 	{
-		return PROGRAM_HEIGHT;
+		return SYRUP_SEA_PROGRAM_HEIGHT;
 	}
+	
+	public static int getConsoleHeight()
+	{
+		return GAME_CONSOLE_HEIGHT;
+	}
+	
+	public static int getConsoleWidth()
+	{
+		return GAME_CONSOLE_WIDTH;
+	}
+
 }
 
