@@ -28,6 +28,8 @@ import javax.swing.event.MouseInputListener;
 public class SyrupSea extends JPanel implements KeyListener, MouseInputListener, ActionListener {
 	
 	private static SyrupSea single_sea = null;
+	
+	private int playerBalance = 0;
 
 	private Grid playerGrid;
 	private Grid opponentGrid;
@@ -54,7 +56,6 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener,
 		this.addKeyListener(this);
 		this.setFocusable(true);
 		this.setFocusTraversalKeysEnabled(false);
-		this.setLayout(new BorderLayout());
 
 		opponentGrid = new Grid(0, 1, new Color(0, 255, 0, 50));
 		playerGrid = new Grid(0, 347, new Color(255, 0, 0, 50));
@@ -114,11 +115,15 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener,
 		
 		opponentGrid.draw(g2);
 		playerGrid.draw(g2);
+		g2.setColor(Color.BLACK);
+		g2.drawString(String.valueOf(playerBalance), 350, 665);
 	}
 	
 	@Override
 	public void mouseClicked(MouseEvent me) 
 	{	
+		System.out.println(me.getPoint().x);
+		System.out.println(me.getPoint().y);
 		if(!setup)
 		{
 			if(Ship.getSelectedShip() != null && playerGrid.find(me.getPoint()))
@@ -301,6 +306,11 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener,
 	{
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public void addCurrency(int c)
+	{
+		this.playerBalance += c;
 	}
 	
 }

@@ -56,7 +56,7 @@ public class Square extends Rectangle2D.Double implements Drawable
 			{
 				try
 				{
-					if(this.x >= 347)
+					if(this.y >= 347)
 						this.display = ImageIO.read(new File("res/butter.png"));
 					else
 						this.display = ImageIO.read(new File("res/butterOpponent.png"));
@@ -74,7 +74,8 @@ public class Square extends Rectangle2D.Double implements Drawable
 				{
 					this.display = ImageIO.read(new File("res/splash.png"));
 				}
-				catch (IOException e) {
+				catch (IOException e)
+				{
 					System.err.println("Could not read in splash image!");
 					System.exit(-1);
 				}
