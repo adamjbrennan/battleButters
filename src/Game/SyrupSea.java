@@ -14,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -34,12 +35,15 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener,
 	private Grid playerGrid;
 	private Grid opponentGrid;
 	
-	private Button quitButton;
+	private ArrayList<Rectangle2D.Double> buttons;
+	
 	private BufferedImage gameBoard;
 	
 	private ArrayList<Ship> playerShips;
 	private ArrayList<Ship> opponentShips;
 	private ArrayList<BufferedImage> gameBoards;
+	
+	private ShotType playerShotType;
 	
 	private boolean isTurn;
 	private boolean setup; 
@@ -60,14 +64,20 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener,
 		opponentGrid = new Grid(0, 1, new Color(0, 255, 0, 50));
 		playerGrid = new Grid(0, 347, new Color(255, 0, 0, 50));
 		
-		quitButton = new Button(BattleButters.getGameWidth() - 89, BattleButters.getGameHeight() - 80, 100, 100, Color.BLACK);
-		
 		setup = false;
 		isTurn = false;
+		
+		this.playerShotType = ShotType.NORMAL;
 		
 		playerShips = new ArrayList<Ship>();
 		opponentShips = new ArrayList<Ship>();
 		gameBoards = new ArrayList<BufferedImage>();
+		buttons = new ArrayList<Rectangle2D.Double>();
+		
+		buttons.add(new Rectangle2D.Double(BattleButters.getGameWidth() - 89, BattleButters.getGameHeight() - 80, 100, 100));
+		buttons.add(new Rectangle2D.Double(BattleButters.getGameWidth() - 55, BattleButters.getGameHeight() - 455, 35, 40));
+		buttons.add(new Rectangle2D.Double(BattleButters.getGameWidth() - 55, BattleButters.getGameHeight() - 390, 35, 40));
+		
 		
 		try
 		{
@@ -164,9 +174,10 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener,
 			if(isTurn && opponentGrid.find(me.getPoint()))
 			{
 				isTurn = false;
-				new Shot(me.getPoint(), ShotType.JAMSHOT, true).fire();
+				new Shot(me.getPoint(), playerShotType, true).fire();
 				gameBoard = gameBoards.get(0);
 				opponentGrid.getSquareArray()[opponentGrid.findIndices(me.getPoint())[0]][opponentGrid.findIndices(me.getPoint())[1]].setColor(Color.BLACK, 0);
+				playerShotType = ShotType.NORMAL;
 				if(opponentGrid.isDefeated())
 					GameConsole.getInstance().writeLine("You win!\n");
 				else
@@ -174,9 +185,39 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener,
 			}
 		}
 		
-		if (quitButton.contains(me.getPoint())) 
+		if (buttons.get(0).contains(me.getPoint())) 
 		{
 			System.exit(0);
+		}
+		else if(buttons.get(1).contains(me.getPoint()) && isTurn)
+		{
+			if(this.playerShotType == ShotType.NORMAL)
+			{
+				if(this.playerBalance >= 10)
+				{
+					this.playerBalance -= 10;
+					this.playerShotType = ShotType.JELLYSHOT;
+				}
+				else
+					GameConsole.getInstance().writeLine("You are broke! Enter some product codes!\n");
+			}
+			else
+				GameConsole.getInstance().writeLine("You have already purchased a power up this turn!\n");
+		}
+		else if(buttons.get(2).contains(me.getPoint()) && isTurn)
+		{
+			if(this.playerShotType == ShotType.NORMAL)
+			{
+				if(this.playerBalance >= 25)
+				{
+					this.playerBalance -= 25;
+					this.playerShotType = ShotType.JAMSHOT;
+				}
+				else
+					GameConsole.getInstance().writeLine("You are broke! Enter some product codes!\n");
+			}
+			else
+				GameConsole.getInstance().writeLine("You have already purchased a power up this turn!\n");
 		}
 		
 		repaint();
@@ -272,7 +313,8 @@ public class SyrupSea extends JPanel implements KeyListener, MouseInputListener,
 	
 				}
 			break;
-			case KeyEvent.VK_P:			
+			case KeyEvent.VK_R:		
+				BattleButters.restart();
 			break;
 		}
 		repaint();

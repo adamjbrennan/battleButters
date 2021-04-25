@@ -10,9 +10,9 @@ import javax.swing.JFrame;
 
 public class BattleButters
 {
-	BufferedImage icon;
-	private JFrame gameFrame;
-	private JFrame gameConsole;
+	private static BufferedImage icon;
+	private static JFrame gameFrame;
+	private static JFrame gameConsole;
 	private static final int SYRUP_SEA_PROGRAM_WIDTH = 425; 
 	private static final int SYRUP_SEA_PROGRAM_HEIGHT = 835; 
 	private static final int GAME_CONSOLE_WIDTH = 425;
@@ -74,5 +74,11 @@ public class BattleButters
 		return GAME_CONSOLE_WIDTH;
 	}
 
+	public static void restart()
+	{
+		gameFrame.dispose();
+		gameConsole.dispose();
+		new BattleButters().start();
+	}
 }
 
