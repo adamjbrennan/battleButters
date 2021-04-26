@@ -16,6 +16,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 public class GameConsole extends JPanel
 {
 	private JTextArea console;
@@ -52,7 +57,7 @@ public class GameConsole extends JPanel
 				SyrupSea.getInstance().repaint();
 			}
 		});
-		
+				
 	}
 	public void writeLine(String s)
 	{
@@ -77,7 +82,40 @@ public class GameConsole extends JPanel
 			console_instance = new GameConsole();
 		return console_instance;
 	}
+	public class database {
 
+	    private static final String INSERT_SQL = "INSERT INTO (Nombre, Apellido, Rut, Edad, Tiempo, Sueldo) VALUES(?, ?, ?, ?, ?, ?)";
 
+	    private Connection connection; 
 
-}
+	    public database(Connection connection) {
+	        this.connection = connection;
+	    }
+	public void insert(String productName, String itemApplicable, int Digitalsugar )
+	{
+	        PreparedStatement ps = null;
+	        try {
+	            ps = this.connection.prepareStatement(INSERT_SQL);
+	            ps.setString(1, productName);
+	            ps.setString(2, itemApplicable);
+	            ps.setInt(3, Digitalsugar);
+	            ps.executeUpdate();
+
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        } finally {
+	            close(ps);
+	        }
+	    }
+	}
+	  public static void close(Statement statement) {
+	        try {
+	            if (statement != null) {
+	                statement.close();
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
+
