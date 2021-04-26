@@ -7,12 +7,16 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
+/**
+ * @author adamj
+ * Dear next BattleButters group, I ran out of time to write comments. For that, I apologize. 
+ */
 
 public class BattleButters
 {
 	private static BufferedImage icon;
-	private static JFrame gameFrame;
-	private static JFrame gameConsole;
+	private JFrame gameFrame;
+	private JFrame gameConsole;
 	private static final int SYRUP_SEA_PROGRAM_WIDTH = 425; 
 	private static final int SYRUP_SEA_PROGRAM_HEIGHT = 835; 
 	private static final int GAME_CONSOLE_WIDTH = 425;
@@ -46,7 +50,7 @@ public class BattleButters
 		
 		gameConsole = new JFrame();
 		gameConsole.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		gameConsole.setTitle("Battle Butters Console");
+		gameConsole.setTitle("BattleButters Console");
 		gameConsole.setResizable(false);
 		gameConsole.setSize(GAME_CONSOLE_WIDTH, GAME_CONSOLE_HEIGHT);
 		gameConsole.setIconImage(icon);
@@ -72,13 +76,6 @@ public class BattleButters
 	public static int getConsoleWidth()
 	{
 		return GAME_CONSOLE_WIDTH;
-	}
-
-	public static void restart()
-	{
-		gameFrame.dispose();
-		gameConsole.dispose();
-		new BattleButters().start();
 	}
 }
 
